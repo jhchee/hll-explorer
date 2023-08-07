@@ -41,5 +41,9 @@ RUN set -ex \
     # Delete the src files for pg_partman
     && rm -rf /usr/src/citus_hll \
     # Delete the dependencies for downloading and building the extensions, we no longer need them
-    && apk del .fetch-deps .build-deps \
-RUN psql -U postgres -c "CREATE EXTENSION hll;"
+    && apk del .fetch-deps .build-deps
+
+# Copy the init script
+# The Docker Postgres initd script will run anything
+# in the directory /docker-entrypoint-initdb.d
+COPY initdb.sh /docker-entrypoint-initdb.d/initdb.sh

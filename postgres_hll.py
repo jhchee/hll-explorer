@@ -1,6 +1,6 @@
+import time
 import psycopg2
 import bson
-from psycopg2.extras import execute_values
 
 db_params = {
     'dbname': 'postgres',
@@ -10,26 +10,27 @@ db_params = {
     'port': '5432',
 }
 try:
-    # Establish the connection to the database
     conn = psycopg2.connect(**db_params)
-
-    # Create a cursor object to interact with the database
     cursor = conn.cursor()
-    update_template = """
+    cursor.execute("DELETE FROM helloworld WHERE id = 1")
+    cursor.execute("INSERT INTO helloworld(id, set) VALUES (1, hll_empty());")
+
+    start_time = time.perf_counter()
+    for _ in range(1, 1000):
+        id = bson.ObjectId().__str__()
+        cursor.execute("""
                       UPDATE helloworld 
-                      SET set = hll_add(set, hll_hash_text(t.name))
+                      SET set = hll_add(set, hll_hash_text(%s))
                       WHERE id=1
-                      """
+                      """, (id,))
+        conn.commit()
+    end_time = time.perf_counter()
+    total_time = end_time - start_time
+    print(f'Function Took {total_time:.4f} seconds')
 
-    tuples = [(bson.ObjectId().__str__(),) for i in range(1, 10)]
-    print(tuples)
-    ex(cursor, update_template, tuples)
-    conn.commit()
-
+    # print result
     cursor.execute("SELECT hll_cardinality(set) FROM helloworld WHERE id = 1")
-
     result = cursor.fetchone()
-    print(result)
     # Close the cursor and connection
     cursor.close()
     conn.close()
