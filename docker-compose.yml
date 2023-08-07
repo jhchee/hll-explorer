@@ -1,0 +1,12 @@
+version: '3'
+name: 'postgres-hll-explorer'
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+    ports:
+      - '5432:5432'
