@@ -1,5 +1,5 @@
 version: '3'
-name: 'postgres-hll-explorer'
+name: 'hll-explorer'
 services:
   postgres:
     build:
